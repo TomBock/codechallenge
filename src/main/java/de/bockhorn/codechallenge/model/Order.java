@@ -5,32 +5,38 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * POJO Model class for Order with an ID, a product and the amount ordered.
  * Will automatically be mapped to the json format by Jackson (see dependencies).
  */
-@Entity
-@Table(name = "orders")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Getter @Setter private int orderID;
-    // The orderID is assumed to automatically be increased by VUE (frontend).
+    @Getter @Setter private long orderID;
 
-    @Column(columnDefinition = "text")
-    @Getter @Setter private String products;
+    @Getter @Setter private List<Map<String, String>> products;
 
-    @Override
-    public String toString() {
-        return "OrderModel{" +
-                "orderID=" + orderID +
-                ", products=" + products +
-                '}';
+    /**
+     * Changes the format for easier storage
+     * @return a list of ProductOrder classes
+     */
+    public List<ProductOrder> getProductOrders() {
+        List<ProductOrder> productOrders = new ArrayList<>();
+        products.forEach(
+                productData -> productOrders.add(
+                        new ProductOrder(
+                                orderID,
+                                productData.get("name"),
+                                Integer.parseInt(productData.get("amount")
+                                )
+                        )
+                )
+        );
+        return productOrders;
     }
 }
