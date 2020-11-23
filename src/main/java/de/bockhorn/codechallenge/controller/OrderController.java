@@ -1,13 +1,15 @@
 package de.bockhorn.codechallenge.controller;
 
 import de.bockhorn.codechallenge.model.Order;
-import de.bockhorn.codechallenge.model.ProductOrder;
-import de.bockhorn.codechallenge.repository.ProductOrderRepository;
+import de.bockhorn.codechallenge.model.Product;
+import de.bockhorn.codechallenge.repository.ProductRepository;
+import de.bockhorn.codechallenge.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 /**
@@ -18,17 +20,30 @@ import java.util.List;
 public class OrderController {
 
     @Autowired
-    private ProductOrderRepository productOrderRepository;
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     /**
      * Maps the /post suburl to receive orders and
      * store the respective models in the database.
-     * @param order Model of the order, which has been pre-mapped by Jackson ot the java class.
+     * @param order Model of the order, which has been pre-mapped by Jackson to the java class.
      * @return Displayed result string.
      */
     @PostMapping(value = "/post")
     public ResponseEntity<HttpStatus> post(@RequestBody Order order) {
-        productOrderRepository.saveAll(order.getProductOrders());
+
+        // Order has to be passed to the products for mapping in the database
+        order.getProducts().forEach(product -> product.setOrder(order));
+
+        // Order and products stored in their respective tables
+        orderRepository.save(order);
+        productRepository.saveAll(order.getProducts());
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -38,8 +53,7 @@ public class OrderController {
      * @return ResponseEntity containing of a list of orders and status.
      */
     @GetMapping("/get")
-    public List<ProductOrder> get() {
-        return productOrderRepository.findAll();
+    public ResponseEntity<List<Order>> get() {
+        return new ResponseEntity<>(orderRepository.findAll(), HttpStatus.OK);
     }
-
 }

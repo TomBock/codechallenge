@@ -5,38 +5,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
+import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * POJO Model class for Order with an ID, a product and the amount ordered.
  * Will automatically be mapped to the json format by Jackson (see dependencies).
  */
+@Entity(name = "orders")
+@Table(name = "orders")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order {
+public class Order implements Serializable {
 
+    @Id
+    @Column(name = "order_id")
     @Getter @Setter private long orderID;
 
-    @Getter @Setter private List<Map<String, String>> products;
+    @OneToMany(mappedBy = "order")
+    @Getter @Setter private List<Product> products;
 
-    /**
-     * Changes the format for easier storage
-     * @return a list of ProductOrder classes
-     */
-    public List<ProductOrder> getProductOrders() {
-        List<ProductOrder> productOrders = new ArrayList<>();
-        products.forEach(
-                productData -> productOrders.add(
-                        new ProductOrder(
-                                orderID,
-                                productData.get("name"),
-                                Integer.parseInt(productData.get("amount")
-                                )
-                        )
-                )
-        );
-        return productOrders;
-    }
 }
