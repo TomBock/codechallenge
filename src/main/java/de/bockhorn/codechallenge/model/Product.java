@@ -1,6 +1,7 @@
 package de.bockhorn.codechallenge.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.io.Serializable;
 @Entity(name = "products")
 @Table(name = "products")
 @NoArgsConstructor
+@AllArgsConstructor
 public class Product implements Serializable {
 
     @Id
